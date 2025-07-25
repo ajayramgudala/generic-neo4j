@@ -1,9 +1,10 @@
 package com.example.genericneo4j.model;
 
-import org.springframework.data.annotation.Id;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.RelationshipId;
 
 import java.util.Map;
@@ -16,13 +17,16 @@ public class DocumentRelationship {
     @TargetNode
     private DocumentNode target;
 
-    private Map<String, Object> properties;
+    private String propertiesJson; // Store properties as JSON
+
+    @Transient
+    private Map<String, Object> properties; // Not persisted directly
 
     public DocumentRelationship() {}
 
     public DocumentRelationship(DocumentNode target, Map<String, Object> properties) {
         this.target = target;
-        this.properties = properties;
+        setProperties(properties);
     }
 
     public Long getId() {
@@ -41,11 +45,32 @@ public class DocumentRelationship {
         this.target = target;
     }
 
+    public String getPropertiesJson() {
+        return propertiesJson;
+    }
+
+    public void setPropertiesJson(String propertiesJson) {
+        this.propertiesJson = propertiesJson;
+        this.properties = null; // force re-parse
+    }
+
     public Map<String, Object> getProperties() {
+        if (properties == null && propertiesJson != null) {
+            try {
+                properties = new ObjectMapper().readValue(propertiesJson, Map.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return properties;
     }
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+        try {
+            this.propertiesJson = new ObjectMapper().writeValueAsString(properties);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 } 

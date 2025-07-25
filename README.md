@@ -44,16 +44,19 @@ Example node JSON:
 ```
 
 ### Relationships
-- `POST /relationships?fromId={fromId}&toId={toId}` — Create relationship with properties
-- `GET /relationships` — List all relationships
+- `POST /relationships?fromId={fromId}&toId={toId}` — Create a relationship from one node to another with properties. Returns the updated source node.
+- `GET /relationships?nodeId={nodeId}` — List all outgoing relationships from a node.
 
-Example relationship JSON:
+Example relationship creation JSON:
 ```json
 {
-  "status": "active",
-  "created": "2024-06-01"
+  "relationType": "LINKED_TO",
+  "createdBy": "ajay",
+  "note": "Invoice is linked to PO"
 }
 ```
+
+**Note:** Relationships are now managed as part of the source node's outgoing relationships. You cannot create or query relationships directly; always use the node endpoints.
 
 ## Notes
 - This is a generic/flexible model. You can add any fields to nodes or relationships.

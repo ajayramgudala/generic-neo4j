@@ -17,7 +17,10 @@ public class DocumentNodeController {
 
     @PostMapping
     public DocumentNode createNode(@RequestBody DocumentNode node) {
-        return nodeRepository.save(node);
+        node.setFields(node.getFields()); // ensure fieldsJson is set
+        DocumentNode saved = nodeRepository.save(node);
+        saved.setFields(saved.getFields()); // ensure fields is populated for response
+        return saved;
     }
 
     @GetMapping("/{id}")
@@ -33,7 +36,10 @@ public class DocumentNodeController {
     @PutMapping("/{id}")
     public DocumentNode updateNode(@PathVariable Long id, @RequestBody DocumentNode node) {
         node.setId(id);
-        return nodeRepository.save(node);
+        node.setFields(node.getFields()); // ensure fieldsJson is set
+        DocumentNode saved = nodeRepository.save(node);
+        saved.setFields(saved.getFields()); // ensure fields is populated for response
+        return saved;
     }
 
     @DeleteMapping("/{id}")
