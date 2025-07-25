@@ -22,10 +22,17 @@ public class DocumentRelationship {
     @Transient
     private Map<String, Object> properties; // Not persisted directly
 
+    private String type; // Relationship type
+
     public DocumentRelationship() {}
 
     public DocumentRelationship(DocumentNode target, Map<String, Object> properties) {
+        this(target, "LINKED_TO", properties);
+    }
+
+    public DocumentRelationship(DocumentNode target, String type, Map<String, Object> properties) {
         this.target = target;
+        this.type = type;
         setProperties(properties);
     }
 
@@ -72,5 +79,13 @@ public class DocumentRelationship {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 } 

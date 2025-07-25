@@ -22,8 +22,8 @@ public class DocumentNode {
     @Transient
     private Map<String, Object> fields; // Not persisted directly
 
-    @Relationship(type = "LINKED_TO", direction = Relationship.Direction.OUTGOING)
-    private List<DocumentRelationship> relationships;
+    @Relationship(direction = Relationship.Direction.OUTGOING)
+    private Map<String, List<DocumentRelationship>> relationshipsByType;
 
     public DocumentNode() {}
 
@@ -68,11 +68,17 @@ public class DocumentNode {
         }
     }
 
-    public List<DocumentRelationship> getRelationships() {
-        return relationships;
+    public Map<String, List<DocumentRelationship>> getRelationshipsByType() {
+        return relationshipsByType;
     }
 
-    public void setRelationships(List<DocumentRelationship> relationships) {
-        this.relationships = relationships;
+    public void setRelationshipsByType(Map<String, List<DocumentRelationship>> relationshipsByType) {
+        this.relationshipsByType = relationshipsByType;
+    }
+
+    // Helper to get all relationships regardless of type
+    public List<DocumentRelationship> getAllRelationships() {
+        if (relationshipsByType == null) return List.of();
+        return relationshipsByType.values().stream().flatMap(List::stream).toList();
     }
 } 
