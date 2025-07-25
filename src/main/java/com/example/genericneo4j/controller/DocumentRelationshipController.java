@@ -1,5 +1,6 @@
 package com.example.genericneo4j.controller;
 
+import com.example.genericneo4j.config.AuditLogger;
 import com.example.genericneo4j.model.DocumentNode;
 import com.example.genericneo4j.model.DocumentRelationship;
 import com.example.genericneo4j.repository.DocumentNodeRepository;
@@ -15,6 +16,9 @@ public class DocumentRelationshipController {
 
     @Autowired
     private DocumentNodeRepository nodeRepository;
+
+    @Autowired
+    private AuditLogger auditLogger;
 
     // Create a relationship of a given type
     @PostMapping
@@ -35,6 +39,7 @@ public class DocumentRelationshipController {
         }
         fromNode.getRelationshipsByType().computeIfAbsent(type, k -> new ArrayList<>()).add(relationship);
         nodeRepository.save(fromNode);
+        auditLogger.log("CREATE", "RELATIONSHIP", relationship.getId(), relationship.getPropertiesJson());
         return fromNode;
     }
 
@@ -69,6 +74,7 @@ public class DocumentRelationshipController {
                         if (relationshipId.equals(rel.getId())) {
                             it.remove();
                             nodeRepository.save(node);
+                            auditLogger.log("DELETE", "RELATIONSHIP", relationshipId, "");
                             return "Deleted relationship " + relationshipId;
                         }
                     }
@@ -89,6 +95,7 @@ public class DocumentRelationshipController {
                         if (relationshipId.equals(rel.getId())) {
                             rel.setProperties(properties);
                             nodeRepository.save(node);
+                            auditLogger.log("UPDATE", "RELATIONSHIP", relationshipId, rel.getPropertiesJson());
                             return "Updated relationship " + relationshipId;
                         }
                     }
